@@ -7,7 +7,6 @@
 {% endif %}
 
 <style>
-    /* 여기에 위 공통 CSS 스타일 내용을 붙여넣습니다. */
     html, body {
         height: 100%;
         margin: 0;
@@ -28,7 +27,6 @@
         overflow: hidden;
     }
 
-    /* 🌟🌟🌟 수정된 카메라 모듈 컨테이너 스타일 (반응형) 🌟🌟🌟 */
     .camera-module-container {
          position: absolute;
 
@@ -132,8 +130,8 @@ function capture() {
 
 function send() {
     if (formData.has('up_file')) {
-        console.log("page_3_2: 데이터 전송 시도: /page_3_2"); // 🌟 수정됨
-        fetch('/page_3_2', { // 🌟 수정됨
+        console.log("page_3_2: 데이터 전송 시도: /page_3_2"); 
+        fetch('/page_3_2', { 
             method: 'POST',
             body: formData,
         }).then((response) => {
@@ -141,12 +139,12 @@ function send() {
             window.location.replace(response.url);
         }).catch((error) => {
             console.error("page_3_2: 데이터 전송 실패: ", error);
-            // 오류 발생 시, 현재 페이지에 머무르거나 오류 메시지를 띄웁니다.
         });
     } else {
         console.warn("page_3_2: 전송할 캡처된 파일이 없습니다.");
     }
 }
 </script>
+
 
 {% endblock %}
