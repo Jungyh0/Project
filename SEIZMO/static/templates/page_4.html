@@ -15,7 +15,6 @@
     }
 
     body {
-        /* 🌟 UI 배경 이미지 경로 (url_for 사용) */
         background-image: url('{{ url_for("static", filename="assets/4.png") }}');
         background-repeat: no-repeat;
         background-size: contain;
@@ -36,8 +35,7 @@
        background: #fff !important;
        overflow: hidden !important;
    }
-    /* ******************************************* */
-    /* 🌟🌟🌟 8개 캡처 사진 목록 컨테이너 (사용자 지정 크기/위치 적용) 🌟🌟🌟 */
+
     .capture-grid-container {
         position: absolute;
 
@@ -54,7 +52,6 @@
         gap: 1.5vw 0.5vw;
     }
 
-    /* 🌟🌟🌟 4개 선택된 사진 슬롯 컨테이너 (사용자 지정 크기/위치 적용) 🌟🌟🌟 */
     .select-grid-container {
         position: absolute;
 
@@ -90,8 +87,6 @@
         cursor: pointer;
     }
 
-    /* ******************************************* */
-    /* 🌟🌟🌟 AI PLUS MODE 버튼 영역 (투명 클릭 영역) 🌟🌟🌟 */
 
     .ai-plus-mode-container {
         position: absolute;
@@ -121,7 +116,6 @@
         margin: 0;
     }
 
-    /* 🌟 인화하기 버튼 영역 🌟 (투명 클릭 영역) */
     .print-button-area {
         position: absolute;
         bottom: 16vh;
@@ -260,5 +254,6 @@
         alert(message);
     }
 </script>
+
 
 {% endblock %}
