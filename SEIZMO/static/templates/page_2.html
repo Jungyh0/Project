@@ -54,11 +54,9 @@
         z-index: 10;
     }
 
-    /* 3. 🌟🌟🌟 요청하신 새 버튼 크기 및 위치 적용 🌟🌟🌟 */
     .start-button-area {
         position: absolute;
 
-        /* 방금 알려주신 값으로 수정했습니다 */
         width: 15vw;       /* 버튼의 너비 */
         max-width: 200px;  /* 최대 너비 */
         height: 8vh;       /* 버튼의 높이 */
@@ -73,10 +71,6 @@
         border: none;
         z-index: 20; /* 카메라 모듈보다 위에 있도록 */
 
-        /* --- 디버깅용 ---
-           버튼 위치를 시각적으로 확인하려면 아래 주석을 해제하세요.
-        background-color: rgba(255, 0, 0, 0.3);
-        */
     }
 
 </style>
@@ -108,5 +102,6 @@ if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
     console.error("getUserMedia가 지원되지 않는 브라우저입니다.");
 }
 </script>
+
 
 {% endblock %}
