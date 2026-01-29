@@ -7,7 +7,6 @@
 {% endif %}
 
 <style>
-/* ✅ 인쇄용 스타일 (세로 스트립 + 프레임 배경) */
 @media print {
    @page {
       size: 100mm 148mm; /* 엽서 사이즈 */
@@ -28,22 +27,17 @@
       visibility: visible !important;
    }
 
-   /* 🌟 인쇄 영역 (세로 스트립) 🌟 */
    .print_area {
       position: static !important;
       transform: none !important;
 
-      /* 🌟 스트립 크기 설정 (프레임 이미지 비율에 맞춰 조절) */
       width: 55mm !important;
       height: 148mm !important; /* 용지 높이에 꽉 차게 */
 
-      /* 🖼️ 프레임 배경 설정 */
       background-image: url('{{ url_for("static", filename="assets/frame.jpg") }}') !important;
       background-size: 100% 100% !important;
       background-repeat: no-repeat !important;
 
-      /* 🌟 내부 여백 설정 (사진이 프레임 안에 들어가도록) */
-      /* 상단 5mm, 좌우 3mm, 하단 20mm(로고 공간 확보) */
       padding: 5mm 3mm 20mm 3mm !important;
 
       display: flex !important;
@@ -74,7 +68,6 @@
    }
 }
 
-/* ✅ 화면 표시용 스타일 (기존 유지) */
 html, body { height: 100%; margin: 0; padding: 0; box-sizing: border-box; }
 body { background-image: url('static/assets/6.png'); background-repeat: no-repeat; background-size: contain; background-position: center center; background-color: #ffffff; overflow: hidden; display: flex; justify-content: center; align-items: center; position: relative; width: 100vw; height: 90vh; }
 .print_area { width: min(80vw, 300px); aspect-ratio: 2 / 3; display: flex; flex-direction: column; justify-content: space-between; align-items: center; background: #fff; padding: 3%; box-shadow: 0 0 0px rgba(0,0,0,0.1); box-sizing: border-box; }
@@ -123,5 +116,6 @@ body { background-image: url('static/assets/6.png'); background-repeat: no-repea
       }
    </script>
 </body>
+
 
 {% endblock %}
