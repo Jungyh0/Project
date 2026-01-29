@@ -1,0 +1,127 @@
+{% block content %}
+
+{% if message %}
+    <script type="text/javascript" language="JavaScript">
+       alert("{{ message }}");
+    </script>
+{% endif %}
+
+<style>
+/* ✅ 인쇄용 스타일 */
+@media print {
+   @page {
+      size: 4in 6in; /* 엽서 사이즈 */
+      margin: 0;
+   }
+   html, body {
+      margin: 0 !important; padding: 0 !important;
+      height: 148mm !important; background: #fff !important;
+   }
+   .print-preview-area, .print-button-container, .no-print {
+       display: none !important;
+   }
+
+   .print_area {
+       display: block !important;
+       position: fixed !important;
+       top: 20 !important; left: 0 !important;
+       width: 100mm !important; height: 148mm !important;
+       background: #fff !important;
+       overflow: hidden !important;
+   }
+
+   /* 🖼️ 프레임 이미지 (뒤로 보냄) */
+   .frame-bg {
+       position: absolute !important;
+       top: 0 !important; left: 0 !important;
+       width: 100% !important; height: 100% !important;
+       z-index: 1 !important; /* 🌟 사진보다 뒤에 배치 */
+   }
+
+   /* 📷 개별 사진 슬롯 (앞으로 가져옴) */
+   .image-slot {
+       position: absolute !important;
+       z-index: 10 !important; /* 🌟 프레임보다 앞에 배치 */
+       /* background-color: #ddd !important; */ /* 테스트용 회색 배경 제거 */
+   }
+
+   /* 👇 위치 미세 조정 (필요에 따라 숫자 변경) 👇 */
+   .slot1 { top: 6.5%; left: 6.5%; width: 41%; height: 40%; }
+   .slot2 { top: 6.5%; right: 6.5%; width: 41%; height: 40%; }
+   .slot3 { bottom: 14%; left: 6.5%; width: 41%; height: 40%; }
+   .slot4 { bottom: 14%; right: 6.5%; width: 41%; height: 40%; }
+
+   .print_area .image-slot img {
+       width: 100%; height: 100%;
+       object-fit: cover !important;
+   }
+}
+
+/* ✅ 화면 표시용 스타일 (기존 유지) */
+html, body { height: 100%; margin: 0; padding: 0; }
+body { background: url('static/assets/6.png') no-repeat center/contain #fff; overflow: hidden; }
+.print_area { display: none; }
+.print-preview-area { position: absolute; top: 15%; left: 50%; transform: translateX(-50%); width: 90%; max-width: 900px; display: grid; grid-template-columns: 220px 220px; gap: 5px; justify-content: center; }
+.image-container
+{ width: 100%; aspect-ratio: 445/642; border: 4px solid #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.2); background-color: #fff;}
+.image-container img { width: 100%; height: 100%; object-fit: contain; }
+.print-button-container { position: absolute; bottom: 7%; left: 50%; transform: translateX(-50%); width: 400px; height: 100px; z-index: 20; }
+.button-link-area { display: block; width: 100%; height: 100%; }
+.home-button-container {
+    position: absolute;
+    bottom: 3%;
+    right: 3%; /* 오른쪽 하단에 배치 */
+    z-index: 30;
+}
+.home-button {
+    padding: 15px 30px;
+    background-color: #333; /* 버튼 색상 (원하는 색으로 변경 가능) */
+    color: white;
+    text-decoration: none;
+    font-size: 1.2em;
+    border-radius: 50px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+    transition: background-color 0.3s;
+}
+.home-button:hover {
+    background-color: #555;
+}
+</style>
+
+<body>
+    <div class="print-preview-area no-print">
+        {% if swap_list %}
+            {% for src in swap_list %}
+                <div class="image-container"><img src="{{ src }}"></div>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    <div class="print_area">
+        <img src="{{ url_for('static', filename='assets/frame.jpg') }}" class="frame-bg" alt="">
+        {% if swap_list and swap_list[0] %}<div class="image-slot slot1"><img src="{{ swap_list[0] }}"></div>{% endif %}
+        {% if swap_list and swap_list[1] %}<div class="image-slot slot2"><img src="{{ swap_list[1] }}"></div>{% endif %}
+        {% if swap_list and swap_list[2] %}<div class="image-slot slot3"><img src="{{ swap_list[2] }}"></div>{% endif %}
+        {% if swap_list and swap_list[3] %}<div class="image-slot slot4"><img src="{{ swap_list[3] }}"></div>{% endif %}
+    </div>
+
+    <div class="print-button-container no-print">
+        <a href="javascript:void(0);" onclick="printImages();" class="button-link-area">
+            <span style="visibility: hidden;">인쇄하기</span>
+        </a>
+    </div>
+
+    <div class="home-button-container no-print">
+        <a href="{{ url_for('index') }}" class="home-button">
+            🏠 처음으로
+        </a>
+    </div>
+
+    <script>
+        function printImages() {
+            window.print();
+        }
+    </script>
+</body>
+
+{% endblock %}

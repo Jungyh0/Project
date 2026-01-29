@@ -1,0 +1,169 @@
+{% block content %}
+
+{% if message %}
+    <script type="text/javascript" language="JavaScript">
+        alert("{{ message }}");
+    </script>
+{% endif %}
+
+<style>
+    /* Pretendard 폰트 정의 (필요한 경우) */
+    /*
+    @font-face {
+        font-family: 'Pretendard-Regular';
+        src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff');
+        font-weight: 400;
+        font-style: normal;
+    }
+    */
+
+    html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        /* font-family: 'Pretendard-Regular', sans-serif; /* 폰트 적용 (위 @font-face 정의 후) */
+    }
+
+    body {
+        /* [!!!] 배경 이미지 경로 확인 및 설정 */
+        background-image: url('../static/assets/1.png');
+        background-repeat: no-repeat;
+        background-size: contain; /* 또는 cover, 100% 100% 등 UI에 맞게 선택 */
+        background-position: center center;
+        background-color: #ffffff; /* 예시: contain으로 인해 비는 공간 배경색 (흰색) */
+
+        position: relative; /* 자식 요소의 absolute positioning 기준점 */
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden; /* 전체 페이지 스크롤 방지 */
+    }
+
+    /* 카메라 영상(비디오)과 캡처용 캔버스를 담을 컨테이너 */
+    .camera-module-container {
+        position: absolute;
+
+        /* --- 중요! 3_1.png 이미지에서 카메라/캔버스가 위치할 곳의 좌표와 크기로 정밀 조정 --- */
+        width: 400px;  /* 예시: 카메라/캔버스 너비 (3_1.png 이미지 보고 조정) */
+        height: 300px; /* 예시: 카메라/캔버스 높이 (3_1.png 이미지 보고 조정) */
+        top: 25%;    /* 예시: 배경 이미지 상단에서 영역 상단까지의 % 또는 px */
+        left: 50%;   /* 화면 가로 중앙 기준으로 시작 */
+        transform: translateX(-50%); /* 가로 중앙 정렬 */
+
+        /* background-color: rgba(0,0,255,0.2); /* 위치 확인용 임시 배경색 */
+    }
+
+    .camera-module-container video,
+    .camera-module-container canvas {
+        width: 100%;
+        height: 100%;
+        position: absolute; /* video와 canvas를 겹치기 위함 (canvas는 hidden) */
+        top: 0;
+        left: 0;
+        object-fit: cover; /* video가 컨테이너를 채우도록 */
+    }
+
+    .camera-module-container video {
+        transform: scaleX(-1); /* 웹캠 좌우 반전 */
+        filter: FlipH;         /* IE용 웹캠 좌우 반전 */
+        z-index: 10; /* 비디오가 보이도록 (canvas는 hidden이지만 혹시 모르니) */
+    }
+
+    .camera-module-container canvas {
+        visibility: hidden; /* canvas는 캡처용이므로 숨김 */
+        z-index: 5;
+    }
+
+</style>
+
+<body>
+
+    <div class="camera-module-container">
+        <video id="video" autoplay playsinline></video>
+        <canvas id="canvas"></canvas> </div>
+
+    </body>
+
+<script>
+// {% if message %} alert("{{ message }}"); {% endif %} // script 태그 안에서는 Jinja 주석이 아닌 JS 주석 사용
+
+if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+    navigator.mediaDevices.getUserMedia({ video: true }).then(function(stream) {
+        var video = document.getElementById('video');
+        if (video) {
+            video.srcObject = stream;
+            // video.play(); // autoplay 속성이 있으므로 명시적 play 호출은 필요 없을 수 있음
+        }
+    }, function(err) {
+        console.error("웹캠을 가져오는 데 실패했습니다: ", err);
+        // 사용자에게 오류 메시지를 보여줄 수도 있습니다.
+        if ("{{ message }}") { // Jinja 변수를 JS에서 사용하려면 따옴표로 감싸야 함
+             // 이미 {% if message %} 블록이 위 HTML에 있으므로, 중복될 수 있습니다.
+             // script 로직에 맞게 alert 위치 조정 필요
+        }
+    });
+} else {
+    console.error("getUserMedia가 지원되지 않는 브라우저입니다.");
+}
+
+var canvas = document.getElementById('canvas');
+var video = document.getElementById('video'); // video 요소 다시 가져오기 (위에서 이미 선언했어도 OK)
+var context; // canvas context
+var formData = new FormData();
+
+// canvas와 video 요소가 확실히 로드된 후 context를 가져오도록 조정
+if (canvas && video) {
+    // video 요소의 실제 크기를 canvas에 설정 (비율 유지를 위해 중요)
+    video.onloadedmetadata = function() {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        context = canvas.getContext('2d'); // context는 여기서 초기화
+        console.log("비디오 및 캔버스 준비 완료. 캡처 대기 중...");
+
+        // 타이머는 비디오 메타데이터 로드 후 시작 (또는 DOMContentLoaded 이후)
+        setTimeout(capture, 2000); // 2초 후 캡처
+        setTimeout(send, 3000);    // 3초 후 전송 시도
+    };
+}
+
+
+function capture() {
+    if (!context) {
+        console.error("Canvas context가 준비되지 않았습니다.");
+        return;
+    }
+    console.log("캡처 실행");
+    context.drawImage(video, 0, 0, canvas.width, canvas.height); // canvas 크기에 맞춰 그림
+
+    var imgData = canvas.toDataURL('image/png');
+    var binaryData = atob(imgData.split(',')[1]);
+    var array = [];
+    for (var i = 0; i < binaryData.length; i++) {
+        array.push(binaryData.charCodeAt(i));
+    }
+    var file = new File([new Uint8Array(array)], "capture.png", {type: 'image/png'});
+    formData.append('up_file', file);
+    console.log("이미지 캡처 및 formData에 추가됨");
+}
+
+function send() {
+    if (formData.has('up_file')) { // 캡처된 파일이 있을 때만 전송
+        console.log("데이터 전송 시도: /page_3_2");
+        fetch('/page_3_2', {
+            method: 'POST',
+            body: formData,
+        }).then((response) => {
+            console.log("서버 응답 받음, 페이지 이동: ", response.url);
+            window.location.replace(response.url);
+        }).catch((error) => {
+            console.error("데이터 전송 실패: ", error);
+        });
+    } else {
+        console.warn("전송할 캡처된 파일이 없습니다. capture 함수가 먼저 실행되었는지 확인하세요.");
+        // 이 경우, 혹시 모르니 다시 send를 시도하거나 사용자에게 알릴 수 있습니다.
+        // 여기서는 일단 아무것도 안 하지만, 실제 서비스에서는 오류 처리나 재시도 로직이 필요할 수 있습니다.
+    }
+}
+</script>
+
+{% endblock %}

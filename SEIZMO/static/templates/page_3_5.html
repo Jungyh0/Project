@@ -1,0 +1,151 @@
+{% block content %}
+
+{% if message %}
+    <script type="text/javascript" language="JavaScript">
+        alert("{{ message }}");
+    </script>
+{% endif %}
+
+<style>
+    /* 여기에 위 공통 CSS 스타일 내용을 붙여넣습니다. */
+    html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        background-image: url('static/assets/3_5.png');
+        background-repeat: no-repeat;
+        background-size: contain;
+        background-position: center center;
+        background-color: #ffffff;
+        
+        position: relative;
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden;
+    }
+
+    /* 🌟🌟🌟 수정된 카메라 모듈 컨테이너 스타일 (반응형) 🌟🌟🌟 */
+    .camera-module-container {
+         position: absolute;
+
+        /* 확정된 반응형 크기 적용 */
+        width: 84vw;
+        max-width: 920px;
+        height: 41vh;
+        max-height: 700px;
+
+        /* 확정된 위치 적용 */
+        top: 15.6%;
+        left: 50.5%;
+        transform: translateX(-50%);
+
+        background-color: #000000;
+    }
+
+    .camera-module-container video,
+    .camera-module-container canvas {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        object-fit: cover;
+    }
+
+    .camera-module-container video {
+        transform: scaleX(-1);
+        filter: FlipH;
+        z-index: 10;
+    }
+
+    .camera-module-container canvas {
+        visibility: hidden;
+        z-index: 5;
+    }
+
+    .page-number-display {
+        position: absolute;
+        bottom: 10%;
+        left: 50%;
+        transform: translateX(-50%);
+        color: #333;
+        font-size: 24px;
+        font-weight: bold;
+    }
+</style>
+
+<body>
+
+    <div class="camera-module-container">
+        <video id="video" autoplay playsinline></video>
+        <canvas id="canvas"></canvas>
+    </div>
+
+    </body>
+
+<script>
+if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+    navigator.mediaDevices.getUserMedia({ video: true }).then(function(stream) {
+        var video = document.getElementById('video');
+        if (video) {
+            video.srcObject = stream;
+        }
+    }, function(err) {
+        console.error("웹캠을 가져오는 데 실패했습니다: ", err);
+    });
+} else {
+    console.error("getUserMedia가 지원되지 않는 브라우저입니다.");
+}
+
+var canvas = document.getElementById('canvas');
+var video = document.getElementById('video');
+var context;
+var formData = new FormData();
+
+if (canvas && video) {
+    video.onloadedmetadata = function() {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        context = canvas.getContext('2d');
+        console.log("page_3_5: 비디오 및 캔버스 준비 완료. 캡처 대기 중...");
+        setTimeout(capture, 1000);
+        setTimeout(send, 2000);
+    };
+}
+
+function capture() {
+    if (!context) { console.error("Canvas context가 준비되지 않았습니다."); return; }
+    console.log("page_3_5: 캡처 실행");
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    var imgData = canvas.toDataURL('image/png');
+    var binaryData = atob(imgData.split(',')[1]);
+    var array = [];
+    for (var i = 0; i < binaryData.length; i++) { array.push(binaryData.charCodeAt(i)); }
+    var file = new File([new Uint8Array(array)], "capture.png", {type: 'image/png'});
+    formData.append('up_file', file);
+    console.log("page_3_5: 이미지 캡처 및 formData에 추가됨");
+}
+
+function send() {
+    if (formData.has('up_file')) {
+        console.log("page_3_5: 데이터 전송 시도: /page_3_5"); // 🌟 수정됨
+        fetch('/page_3_5', { // 🌟 수정됨
+            method: 'POST',
+            body: formData,
+        }).then((response) => {
+            console.log("page_3_5: 서버 응답 받음, 페이지 이동: ", response.url);
+            window.location.replace(response.url);
+        }).catch((error) => {
+            console.error("page_3_5: 데이터 전송 실패: ", error);
+        });
+    } else {
+        console.warn("page_3_5: 전송할 캡처된 파일이 없습니다.");
+    }
+}
+</script>
+
+{% endblock %}

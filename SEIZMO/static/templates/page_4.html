@@ -1,0 +1,264 @@
+{% block content %}
+
+{% if message %}
+    <script type="text/javascript" language="JavaScript">
+        alert("{{ message }}");
+    </script>
+{% endif %}
+
+<style>
+    html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        /* 🌟 UI 배경 이미지 경로 (url_for 사용) */
+        background-image: url('{{ url_for("static", filename="assets/4.png") }}');
+        background-repeat: no-repeat;
+        background-size: contain;
+        background-position: center center;
+        background-color: #ffffff;
+
+        position: relative;
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden;
+    }
+
+    .print_area {
+       display: block !important;
+       position: fixed !important;
+       top: 0 !important; left: 0 !important;
+       width: 100mm !important; height: 148mm !important;
+       background: #fff !important;
+       overflow: hidden !important;
+   }
+    /* ******************************************* */
+    /* 🌟🌟🌟 8개 캡처 사진 목록 컨테이너 (사용자 지정 크기/위치 적용) 🌟🌟🌟 */
+    .capture-grid-container {
+        position: absolute;
+
+        /* 사용자 지정 크기/위치 적용 */
+        width: 41vw;
+        max-width: 440px;
+        top: 15.1%;
+        left: 24.4%;
+        transform: translateX(-50%);
+
+        /* 2열 4행 Grid 레이아웃 적용 */
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5vw 0.5vw;
+    }
+
+    /* 🌟🌟🌟 4개 선택된 사진 슬롯 컨테이너 (사용자 지정 크기/위치 적용) 🌟🌟🌟 */
+    .select-grid-container {
+        position: absolute;
+
+        /* 사용자 지정 크기/위치 적용 */
+        width: 25vw;
+        max-width: 140px;
+        top: 17.5%;
+        left: 75.5%;
+        transform: translateX(-50%);
+
+        /* 1열 4행 Grid 레이아웃 적용 */
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 0.8vh;
+    }
+    /* ******************************************* */
+
+
+    /* 개별 사진 프레임을 위한 공통 스타일 */
+    .photo-frame-base {
+        overflow: hidden;
+        box-sizing: border-box;
+        position: relative;
+        width: 100%;
+        aspect-ratio: 218 / 163; /* 원본 비율 유지 (가로/세로) */
+    }
+
+    .photo-frame-base img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+        cursor: pointer;
+    }
+
+    /* ******************************************* */
+    /* 🌟🌟🌟 AI PLUS MODE 버튼 영역 (투명 클릭 영역) 🌟🌟🌟 */
+
+    .ai-plus-mode-container {
+        position: absolute;
+        top: 39%;
+        left: 83.5%;
+        transform: translateX(-50%);
+        width: 41vw;
+        max-width: 440px;
+    }
+
+    .mode-buttons-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5vw;
+        width: 60%;
+        margin-top: 23vh; /* AI PLUS MODE 텍스트와 버튼 위치에 맞춰 조정 */
+    }
+
+    /* 합성 모드 개별 버튼 스타일 (투명 영역) */
+    .mode-button {
+        width: 100%;
+        aspect-ratio: 1 / 1;
+        cursor: pointer;
+        background-color: transparent;
+        border: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    /* 🌟 인화하기 버튼 영역 🌟 (투명 클릭 영역) */
+    .print-button-area {
+        position: absolute;
+        bottom: 16vh;
+        left: 50%;
+        transform: translateX(-50%);
+
+        width: 25vw;
+        max-width: 140px;
+        height: 10vh;
+        max-height: 80px;
+        cursor: pointer;
+        background-color: transparent;
+        border: none;
+    }
+
+</style>
+
+<body>
+
+    <form name="cam_form" id="cam_form" action="" method="post">
+        <input type="hidden" name="dt_id" value="{{ dt_id if dt_id else '' }}">
+        <input type="hidden" id="select1_val" name="select1" value="">
+        <input type="hidden" id="select2_val" name="select2" value="">
+        <input type="hidden" id="select3_val" name="select3" value="">
+        <input type="hidden" id="select4_val" name="select4" value="">
+        <input type="hidden" id="ai_mode" name="ai_mode" value="">
+
+        <div class="capture-grid-container">
+            {% for i in range(8) %}
+            <div class="photo-frame-base">
+                <img id="capture{{ i + 1 }}"
+                     src="{{ url_for('static', filename = 'generated/' + capture_list[i]) if capture_list and i < capture_list|length and capture_list[i] else url_for('static', filename='assets/placeholder_capture.png') }}"
+                     onclick="selectImage({{ i + 1 }});"
+                     alt="캡처된 이미지 {{ i + 1 }}">
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="select-grid-container">
+            <div class="photo-frame-base">
+                <img id="select1_img" src="{{ url_for('static', filename='assets/blank.png') }}" onclick="unselectImage(1);" alt="선택 1">
+            </div>
+            <div class="photo-frame-base">
+                <img id="select2_img" src="{{ url_for('static', filename='assets/blank.png') }}" onclick="unselectImage(2);" alt="선택 2">
+            </div>
+            <div class="photo-frame-base">
+                <img id="select3_img" src="{{ url_for('static', filename='assets/blank.png') }}" onclick="unselectImage(3);" alt="선택 3">
+            </div>
+            <div class="photo-frame-base">
+                <img id="select4_img" src="{{ url_for('static', filename='assets/blank.png') }}" onclick="unselectImage(4);" alt="선택 4">
+            </div>
+        </div>
+
+        <div class="ai-plus-mode-container">
+            <div class="mode-buttons-grid">
+                <button type="button" class="mode-button" onclick="convertImages('movie');"></button>
+                <button type="button" class="mode-button" onclick="convertImages('album');"></button>
+                <button type="button" class="mode-button" onclick="convertImages('celebrity');"></button>
+                <button type="button" class="mode-button" onclick="convertImages('meme');"></button>
+            </div>
+        </div>
+
+        <div class="print-button-area" onclick="printImages();">
+        </div>
+
+    </form>
+</body>
+
+<script>
+    function selectImage(captureNum) {
+        const captureImgElement = document.getElementById("capture" + captureNum);
+        const captureImgSrc = captureImgElement.src;
+
+        if (captureImgSrc.includes('placeholder_capture.png')) {
+            return;
+        }
+
+        if (document.getElementById("select1_val").value == "") {
+            document.getElementById("select1_img").src = captureImgSrc;
+            document.getElementById("select1_val").value = captureImgSrc;
+        } else if (document.getElementById("select2_val").value == "") {
+            document.getElementById("select2_img").src = captureImgSrc;
+            document.getElementById("select2_val").value = captureImgSrc;
+        } else if (document.getElementById("select3_val").value == "") {
+            document.getElementById("select3_img").src = captureImgSrc;
+            document.getElementById("select3_val").value = captureImgSrc;
+        } else if (document.getElementById("select4_val").value == "") {
+            document.getElementById("select4_img").src = captureImgSrc;
+            document.getElementById("select4_val").value = captureImgSrc;
+        }
+    }
+
+    function selectImage1() { selectImage(1); }
+    function selectImage2() { selectImage(2); }
+    function selectImage3() { selectImage(3); }
+    function selectImage4() { selectImage(4); }
+    function selectImage5() { selectImage(5); }
+    function selectImage6() { selectImage(6); }
+    function selectImage7() { selectImage(7); }
+    function selectImage8() { selectImage(8); }
+
+    function unselectImage(selectNum) {
+        if (document.getElementById("select" + selectNum + "_val").value != "") {
+            document.getElementById("select" + selectNum + "_img").src = "{{ url_for('static', filename='assets/blank.png') }}";
+            document.getElementById("select" + selectNum + "_val").value = "";
+        }
+    }
+
+    function printImages() {
+        if (document.getElementById("select1_val").value == "" ||
+            document.getElementById("select2_val").value == "" ||
+            document.getElementById("select3_val").value == "" ||
+            document.getElementById("select4_val").value == "") {
+            alert('4장을 선택해 주세요.');
+        } else {
+            document.forms['cam_form'].action = "/page_4_2";
+            document.forms['cam_form'].submit();
+        }
+    }
+
+    function convertImages(mode) {
+        if (document.getElementById("select1_val").value == "" ||
+            document.getElementById("select2_val").value == "" ||
+            document.getElementById("select3_val").value == "" ||
+            document.getElementById("select4_val").value == "") {
+            alert('4장을 선택해 주세요.');
+        } else {
+            document.getElementById("ai_mode").value = mode;
+            document.forms['cam_form'].action = "/page_5";
+            document.forms['cam_form'].submit();
+        }
+    }
+
+    const message = "{{ message if message else '' }}";
+    if (message) {
+        alert(message);
+    }
+</script>
+
+{% endblock %}

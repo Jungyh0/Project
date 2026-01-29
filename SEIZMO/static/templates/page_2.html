@@ -1,0 +1,112 @@
+{% block content %}
+
+{% if message %}
+    <script type="text/javascript" language="JavaScript">
+        alert("{{ message }}");
+    </script>
+{% endif %}
+
+<style>
+    html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        /* 1. 배경 이미지를 '2.png'로 설정 */
+        background-image: url('{{ url_for("static", filename="assets/2.png") }}');
+        background-repeat: no-repeat;
+        background-size: contain;
+        background-position: center center;
+        background-color: #ffffff;
+
+        position: relative;
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden;
+    }
+
+    /* 2. 'page_3.html'와 동일한 카메라 모듈 스타일 */
+    /* 2.png의 빈 네모칸에 위치합니다. */
+    .camera-module-container {
+        position: absolute;
+        width: 84vw;
+        max-width: 920px;
+        height: 41vh;
+        max-height: 700px;
+        top: 15.6%;
+        left: 50.5%;
+        transform: translateX(-50%);
+        background-color: #000000; /* 비디오 로딩 전 검은색 배경 */
+    }
+
+    .camera-module-container video {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        object-fit: cover;
+        transform: scaleX(-1); /* 좌우 반전 */
+        filter: FlipH;
+        z-index: 10;
+    }
+
+    /* 3. 🌟🌟🌟 요청하신 새 버튼 크기 및 위치 적용 🌟🌟🌟 */
+    .start-button-area {
+        position: absolute;
+
+        /* 방금 알려주신 값으로 수정했습니다 */
+        width: 15vw;       /* 버튼의 너비 */
+        max-width: 200px;  /* 최대 너비 */
+        height: 8vh;       /* 버튼의 높이 */
+        max-height: 70px;  /* 최대 높이 */
+
+        bottom: 22vh;      /* 바닥에서부터의 거리 */
+        left: 50%;         /* 가로 중앙 정렬 */
+        transform: translateX(-50%); /* 가로 중앙 정렬 */
+
+        cursor: pointer;
+        background-color: transparent; /* 투명 */
+        border: none;
+        z-index: 20; /* 카메라 모듈보다 위에 있도록 */
+
+        /* --- 디버깅용 ---
+           버튼 위치를 시각적으로 확인하려면 아래 주석을 해제하세요.
+        background-color: rgba(255, 0, 0, 0.3);
+        */
+    }
+
+</style>
+
+<body>
+
+    <div class="camera-module-container">
+        <video id="video" autoplay playsinline></video>
+    </div>
+
+    <a href="{{ url_for('page_3') }}" class="start-button-area">
+        <span style="visibility: hidden;">촬영 시작하기</span>
+    </a>
+
+</body>
+
+<script>
+// 6. 페이지가 로드되면 즉시 카메라를 켭니다.
+if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+    navigator.mediaDevices.getUserMedia({ video: true }).then(function(stream) {
+        var video = document.getElementById('video');
+        if (video) {
+            video.srcObject = stream;
+        }
+    }, function(err) {
+        console.error("웹캠을 가져오는 데 실패했습니다: ", err);
+    });
+} else {
+    console.error("getUserMedia가 지원되지 않는 브라우저입니다.");
+}
+</script>
+
+{% endblock %}

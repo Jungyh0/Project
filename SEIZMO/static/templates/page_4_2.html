@@ -1,0 +1,127 @@
+{% block content %}
+
+{% if message %}
+    <script type="text/javascript" language="JavaScript">
+       alert("{{ message }}");
+    </script>
+{% endif %}
+
+<style>
+/* ✅ 인쇄용 스타일 (세로 스트립 + 프레임 배경) */
+@media print {
+   @page {
+      size: 100mm 148mm; /* 엽서 사이즈 */
+      margin: 0;
+   }
+   html, body {
+      height: 148mm !important; width: 100mm !important;
+      margin: 0 !important; padding: 0 !important;
+      background: #fff !important; overflow: hidden !important;
+   }
+   body {
+      visibility: hidden !important;
+      display: flex !important;
+      justify-content: center !important;
+      align-items: center !important;
+   }
+   .print_area, .print_area * {
+      visibility: visible !important;
+   }
+
+   /* 🌟 인쇄 영역 (세로 스트립) 🌟 */
+   .print_area {
+      position: static !important;
+      transform: none !important;
+
+      /* 🌟 스트립 크기 설정 (프레임 이미지 비율에 맞춰 조절) */
+      width: 55mm !important;
+      height: 148mm !important; /* 용지 높이에 꽉 차게 */
+
+      /* 🖼️ 프레임 배경 설정 */
+      background-image: url('{{ url_for("static", filename="assets/frame.jpg") }}') !important;
+      background-size: 100% 100% !important;
+      background-repeat: no-repeat !important;
+
+      /* 🌟 내부 여백 설정 (사진이 프레임 안에 들어가도록) */
+      /* 상단 5mm, 좌우 3mm, 하단 20mm(로고 공간 확보) */
+      padding: 5mm 3mm 20mm 3mm !important;
+
+      display: flex !important;
+      flex-direction: column !important;
+      justify-content: space-between !important;
+      align-items: center !important;
+      gap: 2mm !important; /* 사진 사이 간격 */
+      box-sizing: border-box !important;
+      margin: auto !important;
+   }
+
+   .image-slot {
+      width: 100% !important;
+      /* 3:2 비율 유지 */
+      aspect-ratio: 3 / 2 !important;
+      overflow: hidden !important;
+      background-color: transparent !important;
+   }
+
+   .print_area .image-slot img {
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: cover !important;
+   }
+
+   .print-preview-area, .print-button-container, .no-print {
+       display: none !important;
+   }
+}
+
+/* ✅ 화면 표시용 스타일 (기존 유지) */
+html, body { height: 100%; margin: 0; padding: 0; box-sizing: border-box; }
+body { background-image: url('static/assets/6.png'); background-repeat: no-repeat; background-size: contain; background-position: center center; background-color: #ffffff; overflow: hidden; display: flex; justify-content: center; align-items: center; position: relative; width: 100vw; height: 90vh; }
+.print_area { width: min(80vw, 300px); aspect-ratio: 2 / 3; display: flex; flex-direction: column; justify-content: space-between; align-items: center; background: #fff; padding: 3%; box-shadow: 0 0 0px rgba(0,0,0,0.1); box-sizing: border-box; }
+.image-slot { width: 100%; aspect-ratio: 3 / 2; border-radius: 8px; background-color: #eee; overflow: hidden; }
+.print_area .image-slot img { width: 100%; height: 100%; object-fit: cover; object-position: center; cursor: pointer; }
+.print-button-area { position: fixed; bottom: 5vh; left: 50%; transform: translateX(-50%); width: 30vw; max-width: 150px; height: 8vh; cursor: pointer; z-index: 20; }
+.button-link-area { display: block; width: 100%; height: 100%; }
+
+.home-button-container {
+    position: fixed;
+    top: 3vh;
+    right: 3vw;
+    z-index: 30;
+}
+.home-button {
+    padding: 10px 20px;
+    background-color: rgba(0, 0, 0, 0.6);
+    color: white;
+    text-decoration: none;
+    border-radius: 30px;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+</style>
+
+<body>
+    <div class="home-button-container no_print">
+       <a href="{{ url_for('index') }}" class="home-button">🏠 처음으로</a>
+   </div>
+   <div class="print_area">
+      <div class="image-slot"><img src="{{ select1 }}"></div>
+      <div class="image-slot"><img src="{{ select2 }}"></div>
+      <div class="image-slot"><img src="{{ select3 }}"></div>
+      <div class="image-slot"><img src="{{ select4 }}"></div>
+   </div>
+
+   <a href="javascript:void(0);" onclick="printAndGoHome();" class="print-button-area no_print">
+      <span style="visibility: hidden;">인쇄하기</span>
+   </a>
+
+   <script>
+      function printAndGoHome() {
+         window.print();
+      }
+   </script>
+</body>
+
+{% endblock %}
