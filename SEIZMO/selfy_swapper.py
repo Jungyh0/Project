@@ -54,7 +54,6 @@ def swap_face(swapper, source_faces, target_faces, source_index, target_index, t
 
 
 # ============================================================================================
-# 🌟🌟🌟 웹서버 page_6에서 사용하는 새로운 핵심 함수 🌟🌟🌟
 
 def load_source_faces(source_paths: list):
     """
@@ -65,7 +64,6 @@ def load_source_faces(source_paths: list):
 
     for src_path in source_paths:
         try:
-            # 전달되는 경로는 이미 selfy_webserver.py에서 로컬 경로로 변환된 상태입니다.
             source_pil = Image.open(src_path).convert('RGB')
             source_np = np.array(source_pil)
             source_img = cv2.cvtColor(source_np, cv2.COLOR_RGB2BGR)
@@ -129,11 +127,7 @@ def swap_and_save(source_face_to_use, target_path, output_path, target_face_inde
     return output_path
 
 
-# ============================================================================================
-# 기존 함수 (유지)
-# 이 함수들은 이전 버전 호환성을 위해 유지되지만, 현재 플로우에서는 load_source_faces와 swap_and_save가 주로 사용됩니다.
 def faceswap(src_path, target_path, save_path, target_face_index=None):
-    # 이 함수는 기존의 단일 소스 이미지 기반 합성 함수입니다.
     temp = shutil.copy(src_path, save_path)
 
     try:
@@ -252,4 +246,5 @@ def faceswap_multi(source_paths: list, target_path, dst_path, target_face_index=
     result_pil.save(dst_path)
 
     print(f'Swap success: {dst_path}')
+
     return dst_path
