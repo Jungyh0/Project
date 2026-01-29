@@ -15,7 +15,6 @@ import google.genai as genai
 from google.genai.errors import APIError
 
 # Flask Imports
-# 🌟 (수정) jsonify 추가
 from flask import Flask, request, render_template, session, redirect, url_for, send_file, jsonify
 from werkzeug.utils import secure_filename
 
@@ -25,7 +24,6 @@ import selfy_swapper as swapper
 # ==========================================================================================
 # Configuration
 
-# 🌟 config.json 파일이 존재한다고 가정합니다.
 with open('./config.json', 'rb') as f:
     config_file = json.loads(f.read().decode())
 
@@ -40,7 +38,6 @@ os.makedirs(out_dir, exist_ok=True)
 LOG_DIR = './logs/'
 os.makedirs(LOG_DIR, exist_ok=True)
 
-# 🌟🌟🌟 (수정) target -> targets (오타 수정)
 TARGETS_BASE_DIR = './static/target/'
 
 # 허용되는 파일 확장자
@@ -185,8 +182,7 @@ def handle_capture_page(current_page_name, next_page_url, max_captures):
                 filename = f"capture_{current_count + 1:02d}.png"
                 filepath = os.path.join(save_dir, filename)
                 file.save(filepath)
-
-                # 🌟 (수정) 'generated/'가 포함된 올바른 경로
+                
                 web_path = os.path.join(os.path.basename(out_dir), dt_id, filename).replace(os.sep, '/')
                 capture_list.append(web_path)
                 session['capture_list'] = capture_list
@@ -243,7 +239,7 @@ def page_4_2():
         user_face_urls = [select1, select2, select3, select4]
         session['source_image_paths'] = user_face_urls
         session['target_paths'] = []
-        session['source_id'] = dt_id  # 🌟 (수정) source_dt_id -> source_id
+        session['source_id'] = dt_id 
         session['ai_mode'] = 'print_only'
 
         return render_template('page_4_2.html', dt_id=dt_id, select1=select1, select2=select2, select3=select3,
@@ -252,9 +248,7 @@ def page_4_2():
     return redirect(url_for('page_4'))
 
 
-# ------------------------------------------------------------------------------------------
-# 🌟 (수정) /page_5 함수 (로딩 페이지만 렌더링)
-# ------------------------------------------------------------------------------------------
+
 @app.route('/page_5', methods=['GET', 'POST'])
 def page_5():
     """
@@ -266,7 +260,6 @@ def page_5():
 
     if request.method == 'POST':
         try:
-            # (이전과 동일) 폼 데이터와 AI 모드를 세션에 저장합니다.
             dt_id = request.form.get('dt_id')
             select1 = request.form.get('select1')
             select2 = request.form.get('select2')
@@ -304,7 +297,6 @@ def page_5():
             session['source_id'] = dt_id  # 🌟 (수정) source_dt_id -> source_id
             session['ai_mode'] = ai_mode
 
-            # 🌟 (수정) /page_6으로 리다이렉트하는 대신, 로딩 페이지(page_5.html)를 렌더링합니다.
             return render_template('page_5.html', message="AI 합성 준비 완료. 잠시 후 시작합니다...")
 
         except Exception as ex:
@@ -316,9 +308,6 @@ def page_5():
     return redirect(url_for('page_4'))
 
 
-# ------------------------------------------------------------------------------------------
-# 🌟 (추가) /perform_swap 함수 (실제 합성 수행)
-# ------------------------------------------------------------------------------------------
 @app.route('/perform_swap', methods=['POST'])
 def perform_swap():
     """
@@ -366,16 +355,13 @@ def perform_swap():
                 target_path=target_local_path,
                 output_path=output_path_local
             )
-
-            # 🌟 5. (버그 수정) 'os.path.basename(out_dir)' -> 'generated'로 직접 수정
             output_web_path = os.path.join(
-                'generated',  # 👈👈👈 이 부분이 수정되었습니다!
+                'generated',
                 dt_id,
                 result_dt_id,
                 output_filename
             ).replace(os.sep, '/')
 
-            # 🌟 6. 'static' 별명 사용 (이건 이미 올바르게 되어 있었습니다)
             swap_list.append(url_for('static', filename=output_web_path))
 
         # 7. 프레임 합성
@@ -415,9 +401,6 @@ def perform_swap():
         return jsonify({'status': 'error', 'message': msg, 'redirect_url': url_for('page_4', message=msg)})
 
 
-# ------------------------------------------------------------------------------------------
-# 🌟 (수정) /page_6 함수 (결과 페이지만 렌더링)
-# ------------------------------------------------------------------------------------------
 @app.route('/page_6', methods=['GET', 'POST'])
 def page_6():
     """
@@ -438,7 +421,7 @@ def page_6():
     return render_template('page_6.html', swap_list=swap_list, dt_id=dt_id, message=msg)
 
 
-# ------------------------------------------------------------------------------------------
+
 
 @app.route('/page_7', methods=['GET', 'POST'])
 def page_7():
@@ -447,8 +430,6 @@ def page_7():
     return render_template('page_7.html', message=msg)
 
 
-# ------------------------------------------------------------------------------------------
-# 🚫 사용하지 않는 라우트 (제거 또는 에러 처리)
 
 @app.route('/upload_targets', methods=['GET', 'POST'])
 def upload_targets():
@@ -468,3 +449,4 @@ if __name__ == '__main__':
         debug=True,
         ssl_context=ssl_context
     )
+
