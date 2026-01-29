@@ -28,7 +28,6 @@
         overflow: hidden;
     }
 
-    /* 🌟🌟🌟 수정된 카메라 모듈 컨테이너 스타일 (반응형) 🌟🌟🌟 */
     .camera-module-container {
          position: absolute;
 
@@ -132,8 +131,8 @@ function capture() {
 
 function send() {
     if (formData.has('up_file')) {
-        console.log("page_3_3: 데이터 전송 시도: /page_3_3"); // 🌟 수정됨
-        fetch('/page_3_3', { // 🌟 수정됨
+        console.log("page_3_3: 데이터 전송 시도: /page_3_3"); 
+        fetch('/page_3_3', { 
             method: 'POST',
             body: formData,
         }).then((response) => {
@@ -147,5 +146,6 @@ function send() {
     }
 }
 </script>
+
 
 {% endblock %}
